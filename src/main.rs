@@ -5,7 +5,7 @@ use flexi_logger::{detailed_format, Duplicate};
 use hyper::Server;
 use log::{error, info};
 use routerify::RouterService;
-
+use tokio::signal;
 
 use crate::router::register_router;
 
@@ -25,11 +25,44 @@ fn init_log() {
 }
 
 async fn shutdown_signal() {
-    // Wait for the CTRL+C signal
-    tokio::signal::ctrl_c()
-        .await
-        .expect("failed to install CTRL+C signal handler");
-    info!("interrupted by CTRL+C signal");
+    #[cfg(unix)]
+        let ctrl_c = async {
+        signal::unix::signal(signal::unix::SignalKind::terminate())
+            .expect("failed to install Ctrl+C handler")
+            .recv()
+            .await;
+        info!("terminated by SIGINT");
+    };
+
+    #[cfg(not(unix))]
+        let ctrl_c = async {
+        signal::windows::ctrl_c().unwrap().recv()
+            .await
+            .expect("failed to install Ctrl+C handler");
+        info!("terminated by Ctrl+C");
+    };
+
+    #[cfg(unix)]
+        let terminate = async {
+        signal::unix::signal(signal::unix::SignalKind::terminate())
+            .expect("failed to install signal handler")
+            .recv()
+            .await;
+        info!("terminated by SIGTERM");
+    };
+
+    #[cfg(not(unix))]
+        let terminate = async {
+        signal::windows::ctrl_break().unwrap().recv()
+            .await
+            .expect("failed to install Ctrl+Break handler");
+        info!("terminated by Ctrl+Break");
+    };
+
+    tokio::select! {
+        _ = ctrl_c => {},
+        _ = terminate => {},
+    }
 }
 
 #[tokio::main]
@@ -50,11 +83,11 @@ async fn main() {
     let router = register_router();
     let service = RouterService::new(router).unwrap();
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
-    let server = Server::bind(&addr).serve(service);
-    let graceful = server.with_graceful_shutdown(shutdown_signal());
 
     info!("App is running on: {}", addr);
-    if let Err(err) = graceful.await {
-        error!("Server error: {}", err);
-    }
+    Server::bind(&addr)
+        .serve(service)
+        .with_graceful_shutdown(shutdown_signal())
+        .await
+        .unwrap();
 }

@@ -7,6 +7,7 @@ use routerify::{Middleware, RequestInfo, Router};
 use routerify::ext::RequestExt;
 
 use crate::controller::hello::hello_handler;
+use crate::controller::auth::{login_get_handler, login_post_handler};
 
 // Define an app state to share it across the route handlers and middlewares.
 struct State(u64);
@@ -41,6 +42,8 @@ pub fn register_router() -> Router<Body, Infallible> {
         .data(State(100))
         .middleware(Middleware::pre(logger))
         .get("/hello/:userId", hello_handler)
+        .get("/login", login_get_handler)
+        .post("/login", login_post_handler)
         .err_handler_with_info(error_handler)
         .build()
         .unwrap()
