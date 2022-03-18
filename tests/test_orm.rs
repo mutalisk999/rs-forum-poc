@@ -30,11 +30,8 @@ mod test {
 
         let rb = Rbatis::new();
         let db_cfg = MySqlConnectOptions::new();
-        let db_cfg = db_cfg.host(&mysql_host);
-        let db_cfg = db_cfg.port(mysql_port);
-        let db_cfg = db_cfg.database(&mysql_db);
-        let db_cfg = db_cfg.username(&mysql_user);
-        let db_cfg = db_cfg.password(&mysql_pass);
+        let db_cfg = db_cfg.host(&mysql_host).port(mysql_port)
+            .database(&mysql_db).username(&mysql_user).password(&mysql_pass);
 
         let db_cfg= DBConnectOption::from_mysql(&db_cfg)
             .unwrap_or_else(|e| panic!("panic from_mysql: {:?}", e));

@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate lazy_static;
+
 use std::net::SocketAddr;
 
 use fdlimit::raise_fd_limit;
@@ -8,9 +11,12 @@ use routerify::RouterService;
 use tokio::signal;
 
 use crate::router::register_router;
+use crate::utils::g::init_mysql_rbatis_session;
 
 mod router;
 mod controller;
+mod utils;
+mod model;
 
 fn init_log() {
     flexi_logger::Logger::with_str("debug")
@@ -69,6 +75,9 @@ async fn shutdown_signal() {
 async fn main() {
     // init log
     init_log();
+
+    // init db session
+    init_mysql_rbatis_session().await;
 
     // raise fd limit to max
     match raise_fd_limit() {
