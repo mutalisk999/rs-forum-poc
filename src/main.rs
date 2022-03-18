@@ -89,14 +89,13 @@ async fn main() {
         }
     }
 
+    let listen_addr_str = "0.0.0.0:3000";
+    let listen_addr: SocketAddr = listen_addr_str.parse().unwrap();
+
     let router = register_router();
     let service = RouterService::new(router).unwrap();
-    let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
 
-    info!("App is running on: {}", addr);
-    Server::bind(&addr)
-        .serve(service)
-        .with_graceful_shutdown(shutdown_signal())
-        .await
-        .unwrap();
+    info!("App is running on: {}", listen_addr_str);
+    Server::bind(&listen_addr).serve(service)
+        .with_graceful_shutdown(shutdown_signal()).await.unwrap();
 }

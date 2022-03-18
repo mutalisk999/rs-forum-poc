@@ -24,14 +24,18 @@ r###"
   <div class="bg">
   </div>
   <div class="content">
-    <input class="inputbox" type="text" name="USERNAME" placeholder="Please input Username" id="username" />
-    <br />
-    <input class="inputbox" type="password" name="PASSWORD" placeholder="Please input Password" id="password"/>
-    <br />
-    <input type="submit" value="submit" class="btn" onclick="login()"/>
+    <label id="errmsg" hidden="true" /></label><br>
+    <label> Login Name :</label>
+    <input type="text" placeholder="please input username" id="username" /><br>
+    <label> Password :</label>
+    <input type="password" placeholder="please input password" id="password"/><br>
+    <input type="submit" value="submit" onclick="login()"/>
   </div>
   <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
   <script>
+    function hide_err_msg() {
+      $('#errmsg').attr('hidden', true)
+    }
     function login() {
       $.ajax({
         url: '/login',
@@ -43,10 +47,12 @@ r###"
           password:$('#password').val()
         },
         success:function(res) {
-          window.location.href='/hello/world'
+          window.location.href = '/hello/world'
         },
         error:function(err) {
-          console.log(err)
+          $('#errmsg').text(err.responseText)
+          $('#errmsg').attr('hidden', false)
+          setTimeout("hide_err_msg()", 3000)
         }
       })
     }
