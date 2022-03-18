@@ -3,7 +3,7 @@ use std::net::SocketAddr;
 use fdlimit::raise_fd_limit;
 use flexi_logger::{detailed_format, Duplicate};
 use hyper::Server;
-use log::{error, info};
+use log::info;
 use routerify::RouterService;
 use tokio::signal;
 
