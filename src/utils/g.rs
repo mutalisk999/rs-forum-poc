@@ -1,7 +1,6 @@
 use std::sync::Arc;
 use tokio;
 
-use dotenv::dotenv;
 use std::env;
 
 use rbatis::rbatis::Rbatis;
@@ -13,10 +12,10 @@ use sqlx_core::mysql::MySqlConnectOptions;
 
 lazy_static! {
     pub static ref RB_SESSION: Arc::<tokio::sync::Mutex<Option<Rbatis>>> = Arc::new(tokio::sync::Mutex::new(None));
+    pub static ref JWT_SECRET: Arc::<tokio::sync::Mutex<Vec<u8>>> = Arc::new(tokio::sync::Mutex::new(Vec::new()));
 }
 
 pub async fn init_mysql_rbatis_session() {
-    dotenv().ok();
     let mysql_host = env::var("MYSQL_HOST")
         .unwrap_or_else(|e| panic!("no MYSQL_HOST in .env: {}", e.to_string()));
     let mysql_port = env::var("MYSQL_PORT")
@@ -39,4 +38,10 @@ pub async fn init_mysql_rbatis_session() {
     rb.link_cfg(&db_cfg, DBPoolOptions::new()).await
         .unwrap_or_else(|e| panic!("link_cfg: {:?}", e));
     *(RB_SESSION.as_ref().lock().await) = Some(rb);
+}
+
+pub async fn init_jwt_secret() {
+    let jwt_secret = env::var("JWT_SECRET")
+        .unwrap_or_else(|e| panic!("no JWT_SECRET in .env: {}", e.to_string()));
+    JWT_SECRET.as_ref().lock().await.append(&mut jwt_secret.as_bytes().to_vec());
 }

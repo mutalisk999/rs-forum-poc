@@ -8,6 +8,7 @@ use hyper::http::{Request, Response, StatusCode};
 // use routerify::ext::RequestExt;
 use url::form_urlencoded;
 use crate::model::t_user::query_t_user_by_name;
+use crate::utils::jwt::{create_jwt, Role};
 
 #[derive(Template)] // this will generate the code...
 #[template(source =
@@ -113,9 +114,17 @@ pub async fn login_post_handler(req: Request<Body>) -> Result<Response<Body>, In
             return Ok(Response::builder().status(StatusCode::FORBIDDEN)
                 .body("invalid password for username".as_bytes().into()).unwrap());
         }
+
+        let id = res.id.unwrap().to_string();
+        let res = create_jwt(&id, &Role::Admin, 3600).await;
+        // create jwt fail
+        return if res.is_err() {
+            Ok(Response::builder().status(StatusCode::INTERNAL_SERVER_ERROR)
+                .body("create jwt fail".as_bytes().into()).unwrap())
+        } else {
+            Ok(Response::builder().status(StatusCode::OK)
+                .header("Authorization", res.unwrap())
+                .body("".as_bytes().into()).unwrap())
+        }
     }
-
-    // TODO
-
-    return Ok(Response::builder().status(StatusCode::OK).body("".as_bytes().into()).unwrap());
 }

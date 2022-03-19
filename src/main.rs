@@ -9,9 +9,10 @@ use hyper::Server;
 use log::info;
 use routerify::RouterService;
 use tokio::signal;
+use dotenv::dotenv;
 
 use crate::router::register_router;
-use crate::utils::g::init_mysql_rbatis_session;
+use crate::utils::g::{init_mysql_rbatis_session, init_jwt_secret};
 
 mod router;
 mod controller;
@@ -76,7 +77,9 @@ async fn main() {
     // init log
     init_log();
 
-    // init db session
+    // init jwt secret and db session
+    dotenv().ok();
+    init_jwt_secret().await;
     init_mysql_rbatis_session().await;
 
     // raise fd limit to max
