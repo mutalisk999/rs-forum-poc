@@ -11,58 +11,7 @@ use crate::model::t_user::query_t_user_by_name;
 use crate::utils::jwt::{create_jwt, Role};
 
 #[derive(Template)] // this will generate the code...
-#[template(source =
-r###"
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-  <meta charset="UTF-8">
-  <title>login</title>
-</head>
-
-<body>
-  <div class="bg">
-  </div>
-  <div class="content">
-    <label id="errmsg" hidden="true" /></label><br>
-    <label> Login Name :</label>
-    <input type="text" placeholder="please input username" id="username" /><br>
-    <label> Password :</label>
-    <input type="password" placeholder="please input password" id="password"/><br>
-    <input type="submit" value="submit" onclick="login()"/>
-  </div>
-  <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
-  <script>
-    function hide_err_msg() {
-      $('#errmsg').attr('hidden', true)
-    }
-    function login() {
-      $.ajax({
-        url: '/login',
-        type: 'POST',
-        async: false,
-        contentType: 'application/www-form-urlencoded',
-        data:{
-          username:$('#username').val(),
-          password:$('#password').val()
-        },
-        success:function(res) {
-          window.location.href = '/hello/world'
-        },
-        error:function(err) {
-          $('#errmsg').text(err.responseText)
-          $('#errmsg').attr('hidden', false)
-          setTimeout("hide_err_msg()", 3000)
-        }
-      })
-    }
-  </script>
-</body>
-
-</html>
-"###
-, ext = "txt")]
+#[template(path = "login.html")]
 struct LoginGetTemplate {}
 
 

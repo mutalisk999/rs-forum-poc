@@ -7,22 +7,7 @@ use askama::Template;
 
 
 #[derive(Template)] // this will generate the code...
-#[template(source =
-r###"
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-  <meta charset="UTF-8">
-  <title>hello</title>
-</head>
-
-<body>
-  <h1> Hello {{ name }} </h1>
-</body>
-
-</html>
-"###, ext = "txt")]
+#[template(path = "hello.html")]
 struct HelloTemplate {
     name: String,
 }
