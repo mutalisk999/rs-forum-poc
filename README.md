@@ -17,24 +17,10 @@ JWT_SECRET="jwt secret"
 
 #### Thanks
 
+[askama ](https://www.github.com/djc/askama) `rust html template rendering sdk, supporting several async web frameworks.`
 
-* [askama ](https://www.github.com/djc/askama)
-```
- rust html template render, support several async web framework.
-```
+[rbatis](https://github.com/rbatis/rbatis) `rust ORM framework.`
 
+[sqlx](https://github.com/launchbadge/sqlx) `rust async mysql driver.`
 
-* [rbatis](https://github.com/rbatis/rbatis)
-```
- rust ORM framework.
-```
-
-* [sqlx](https://github.com/launchbadge/sqlx)
-```
- rust async mysql driver
-```
-
-* [jsonwebtoken](https://github.com/Keats/jsonwebtoken)
-```
- rust jwt sdk
-```
+[jsonwebtoken](https://github.com/Keats/jsonwebtoken) `rust JWT sdk.`
