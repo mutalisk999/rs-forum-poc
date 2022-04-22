@@ -1,8 +1,9 @@
 # rs-forum 
 
-##### It is just a Proof-Of-Concept toy project !!!
+### It is just a Proof-Of-Concept toy project !!!
 
-* rs-forum/.env
+rs-forum/.env
+
 ```
 MYSQL_HOST="127.0.0.1"
 MYSQL_PORT=3306
@@ -14,13 +15,16 @@ JWT_SECRET="jwt secret"
 ```
 
 
+## Best grate and thanks to these 3rd libs
 
-#### Thanks
+###[askama](https://www.github.com/djc/askama) 
+Rust html template rendering sdk, supporting several async web frameworks.
 
-[askama ](https://www.github.com/djc/askama) `rust html template rendering sdk, supporting several async web frameworks.`
+###[rbatis](https://github.com/rbatis/rbatis) 
+Rust ORM framework.
 
-[rbatis](https://github.com/rbatis/rbatis) `rust ORM framework.`
+###[sqlx](https://github.com/launchbadge/sqlx) 
+Rust async mysql driver.
 
-[sqlx](https://github.com/launchbadge/sqlx) `rust async mysql driver.`
-
-[jsonwebtoken](https://github.com/Keats/jsonwebtoken) `rust JWT sdk.`
+###[jsonwebtoken](https://github.com/Keats/jsonwebtoken) 
+Rust JWT sdk.
