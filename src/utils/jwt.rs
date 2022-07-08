@@ -68,7 +68,7 @@ pub async fn create_jwt(uid: &str, role: &Role, expire: i64) -> Result<String, J
         exp: expiration as usize,
     };
     let header = Header::new(Algorithm::HS512);
-    encode(&header, &claims, &EncodingKey::from_secret(JWT_SECRET.as_ref().lock().await.clone().as_ref()))
+    encode(&header, &claims, &EncodingKey::from_secret(JWT_SECRET.as_ref().read().await.clone().as_ref()))
         .map(|jwt_str| BEARER.to_string() + &jwt_str)
         .map_err(|_| JwtError::JWTTokenCreationError)
 }
@@ -80,8 +80,8 @@ pub async fn verify_jwt(jwt_str: &String) -> Result<Claims, JwtError> {
     let jwt_str = jwt_str.trim_start_matches(BEARER).to_owned();
 
     let decoded = decode::<Claims>(jwt_str.as_ref(),
-                     &DecodingKey::from_secret(JWT_SECRET.as_ref().lock().await.clone().as_ref()),
-                     &Validation::new(Algorithm::HS512)).map_err(|_| JwtError::JWTTokenError)?;
+                                   &DecodingKey::from_secret(JWT_SECRET.as_ref().read().await.clone().as_ref()),
+                                   &Validation::new(Algorithm::HS512)).map_err(|_| JwtError::JWTTokenError)?;
     Ok(decoded.claims.clone())
 }
 

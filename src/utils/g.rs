@@ -11,8 +11,8 @@ use rbatis::core::db::{DBConnectOption, DBPoolOptions};
 use sqlx_core::mysql::MySqlConnectOptions;
 
 lazy_static! {
-    pub static ref RB_SESSION: Arc::<tokio::sync::Mutex<Option<Rbatis>>> = Arc::new(tokio::sync::Mutex::new(None));
-    pub static ref JWT_SECRET: Arc::<tokio::sync::Mutex<Vec<u8>>> = Arc::new(tokio::sync::Mutex::new(Vec::new()));
+    pub static ref RB_SESSION: Arc::<tokio::sync::RwLock<Option<Rbatis>>> = Arc::new(tokio::sync::RwLock::new(None));
+    pub static ref JWT_SECRET: Arc::<tokio::sync::RwLock<Vec<u8>>> = Arc::new(tokio::sync::RwLock::new(Vec::new()));
 }
 
 pub async fn init_mysql_rbatis_session() {
@@ -37,11 +37,11 @@ pub async fn init_mysql_rbatis_session() {
         .unwrap_or_else(|e| panic!("from_mysql: {:?}", e));
     rb.link_cfg(&db_cfg, DBPoolOptions::new()).await
         .unwrap_or_else(|e| panic!("link_cfg: {:?}", e));
-    *(RB_SESSION.as_ref().lock().await) = Some(rb);
+    *(RB_SESSION.as_ref().write().await) = Some(rb);
 }
 
 pub async fn init_jwt_secret() {
     let jwt_secret = env::var("JWT_SECRET")
         .unwrap_or_else(|e| panic!("no JWT_SECRET in .env: {}", e.to_string()));
-    JWT_SECRET.as_ref().lock().await.append(&mut jwt_secret.as_bytes().to_vec());
+    JWT_SECRET.as_ref().write().await.append(&mut jwt_secret.as_bytes().to_vec());
 }

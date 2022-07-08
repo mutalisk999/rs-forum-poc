@@ -1,13 +1,14 @@
 use std::collections::HashMap;
 use std::convert::Infallible;
 use log::{error, warn, info, debug};
+use rbatis;
 
 use askama::Template;
 use hyper::Body;
 use hyper::http::{Request, Response, StatusCode};
 // use routerify::ext::RequestExt;
 use url::form_urlencoded;
-use crate::model::t_user::query_t_user_by_name;
+use crate::model::t_user::{query_t_user_by_name, TUser};
 use crate::utils::jwt::{create_jwt, Role};
 
 #[derive(Template)] // this will generate the code...
@@ -42,7 +43,7 @@ pub async fn login_post_handler(req: Request<Body>) -> Result<Response<Body>, In
             .body("missing field password".as_bytes().into()).unwrap());
     };
 
-    let res = query_t_user_by_name(username).await;
+    let res: Result<Option<TUser>, rbatis::core::Error> = query_t_user_by_name(username).await;
     if res.is_err() {
         error!("query_t_user_by_name fail: {}", res.unwrap_err().to_string());
         return Ok(Response::builder().status(StatusCode::INTERNAL_SERVER_ERROR)
@@ -51,10 +52,10 @@ pub async fn login_post_handler(req: Request<Body>) -> Result<Response<Body>, In
     let res = res.unwrap();
 
     // username not found
-    if res.is_none() {
+    return if res.is_none() {
         debug!("username {} not found", &username);
-        return Ok(Response::builder().status(StatusCode::NOT_FOUND)
-            .body("username not found".as_bytes().into()).unwrap());
+        Ok(Response::builder().status(StatusCode::NOT_FOUND)
+            .body("username not found".as_bytes().into()).unwrap())
     } else {
         let res = res.unwrap();
         // invalid password
@@ -67,7 +68,7 @@ pub async fn login_post_handler(req: Request<Body>) -> Result<Response<Body>, In
         let id = res.id.unwrap().to_string();
         let res = create_jwt(&id, &Role::Admin, 3600).await;
         // create jwt fail
-        return if res.is_err() {
+        if res.is_err() {
             Ok(Response::builder().status(StatusCode::INTERNAL_SERVER_ERROR)
                 .body("create jwt fail".as_bytes().into()).unwrap())
         } else {
@@ -75,5 +76,5 @@ pub async fn login_post_handler(req: Request<Body>) -> Result<Response<Body>, In
                 .header("Authorization", res.unwrap())
                 .body("".as_bytes().into()).unwrap())
         }
-    }
+    };
 }
