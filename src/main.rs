@@ -3,21 +3,21 @@ extern crate lazy_static;
 
 use std::net::SocketAddr;
 
+use dotenv::dotenv;
 use fdlimit::raise_fd_limit;
 use flexi_logger::{detailed_format, Duplicate};
 use hyper::Server;
 use log::info;
 use routerify::RouterService;
 use tokio::signal;
-use dotenv::dotenv;
 
 use crate::router::register_router;
-use crate::utils::g::{init_mysql_rbatis_session, init_jwt_secret};
+use crate::utils::g::{init_jwt_secret, init_mysql_rbatis_session};
 
-mod router;
 mod controller;
-mod utils;
 mod model;
+mod router;
+mod utils;
 
 fn init_log() {
     flexi_logger::Logger::with_str("debug")
@@ -33,7 +33,7 @@ fn init_log() {
 
 async fn shutdown_signal() {
     #[cfg(unix)]
-        let ctrl_c = async {
+    let ctrl_c = async {
         signal::unix::signal(signal::unix::SignalKind::terminate())
             .expect("failed to install Ctrl+C handler")
             .recv()
@@ -42,15 +42,17 @@ async fn shutdown_signal() {
     };
 
     #[cfg(not(unix))]
-        let ctrl_c = async {
-        signal::windows::ctrl_c().unwrap().recv()
+    let ctrl_c = async {
+        signal::windows::ctrl_c()
+            .unwrap()
+            .recv()
             .await
             .expect("failed to install Ctrl+C handler");
         info!("terminated by Ctrl+C");
     };
 
     #[cfg(unix)]
-        let terminate = async {
+    let terminate = async {
         signal::unix::signal(signal::unix::SignalKind::terminate())
             .expect("failed to install signal handler")
             .recv()
@@ -59,8 +61,10 @@ async fn shutdown_signal() {
     };
 
     #[cfg(not(unix))]
-        let terminate = async {
-        signal::windows::ctrl_break().unwrap().recv()
+    let terminate = async {
+        signal::windows::ctrl_break()
+            .unwrap()
+            .recv()
             .await
             .expect("failed to install Ctrl+Break handler");
         info!("terminated by Ctrl+Break");
@@ -99,6 +103,9 @@ async fn main() {
     let service = RouterService::new(router).unwrap();
 
     info!("App is running on: {}", listen_addr_str);
-    Server::bind(&listen_addr).serve(service)
-        .with_graceful_shutdown(shutdown_signal()).await.unwrap();
+    Server::bind(&listen_addr)
+        .serve(service)
+        .with_graceful_shutdown(shutdown_signal())
+        .await
+        .unwrap();
 }

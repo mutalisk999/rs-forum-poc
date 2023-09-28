@@ -1,21 +1,25 @@
 use std::convert::Infallible;
 
-use hyper::Body;
 use hyper::http::{Request, Response, StatusCode};
+use hyper::Body;
 use log::{debug, error};
-use routerify::{Middleware, RequestInfo, Router};
 use routerify::ext::RequestExt;
+use routerify::{Middleware, RequestInfo, Router};
 
-use crate::controller::hello::hello_handler;
 use crate::controller::auth::{login_get_handler, login_post_handler};
+use crate::controller::hello::hello_handler;
 
 // Define an app state to share it across the route handlers and middlewares.
 struct State(u64);
 
-
 // A middleware which logs an http request.
 async fn logger(req: Request<Body>) -> Result<Request<Body>, Infallible> {
-    debug!("{} {} {}", req.remote_addr(), req.method(), req.uri().path());
+    debug!(
+        "{} {} {}",
+        req.remote_addr(),
+        req.method(),
+        req.uri().path()
+    );
     Ok(req)
 }
 
@@ -28,7 +32,6 @@ async fn error_handler(err: routerify::RouteError, _: RequestInfo) -> Response<B
         .body(Body::from(format!("Something went wrong: {}", err)))
         .unwrap()
 }
-
 
 // Create a `Router<Body, Infallible>` for response body type `hyper::Body`
 // and for handler error type `Infallible`.

@@ -1,11 +1,11 @@
 #[macro_use]
 #[cfg(test)]
 mod test {
-    use dotenv::dotenv;
-    use std::env;
-    use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
     use chrono::Utc;
+    use dotenv::dotenv;
+    use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
     use serde::{Deserialize, Serialize};
+    use std::env;
 
     const BEARER: &str = "Bearer ";
 
@@ -32,8 +32,13 @@ mod test {
             exp: expiration as usize,
         };
         let header = Header::new(Algorithm::HS512);
-        let jwt_str = encode(&header, &claims, &EncodingKey::from_secret(jwt_secret.as_bytes()))
-            .map(|jwt_str| BEARER.to_string() + &jwt_str).unwrap();
+        let jwt_str = encode(
+            &header,
+            &claims,
+            &EncodingKey::from_secret(jwt_secret.as_bytes()),
+        )
+        .map(|jwt_str| BEARER.to_string() + &jwt_str)
+        .unwrap();
         println!("jwt str: {}", jwt_str);
     }
 
@@ -44,9 +49,12 @@ mod test {
         let jwt_str = String::from("Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxMDAwMDAiLCJyb2xlIjoiQWRtaW4iLCJleHAiOjE2NDc2OTk5MTB9.LLusFB2-rG1ht9i-F__83yPa9KOCY7lhGy2LvDbJodiDSxSUiGlT-9NGkPhtBtlOXwnsb2gph5xrOCnN9NVa1g");
         let jwt_str = jwt_str.trim_start_matches(BEARER).to_owned();
 
-        let decoded = decode::<Claims>(jwt_str.as_ref(),
-                                       &DecodingKey::from_secret(jwt_secret.as_bytes()),
-                                       &Validation::new(Algorithm::HS512)).unwrap();
+        let decoded = decode::<Claims>(
+            jwt_str.as_ref(),
+            &DecodingKey::from_secret(jwt_secret.as_bytes()),
+            &Validation::new(Algorithm::HS512),
+        )
+        .unwrap();
         println!("claims: {:?}", decoded.claims);
     }
 }
