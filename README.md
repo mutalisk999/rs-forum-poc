@@ -15,7 +15,7 @@ JWT_SECRET="jwt secret"
 ```
 
 
-## Best grate and thanks to these 3rd libs
+## Best greetings and thanks to these 3rd libs
 
 ### [askama](https://www.github.com/djc/askama) 
 Rust html template rendering sdk, supporting several async web frameworks.
